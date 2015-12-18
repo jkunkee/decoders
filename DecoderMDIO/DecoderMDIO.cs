@@ -13,7 +13,7 @@ copy /Y "D:\CrashPlan\Video Capture Device\decoders\DecoderMDIO\bin\Debug\Decode
 
 namespace LabNation.Decoders
 {
-    [Export(typeof(IDecoder))]
+    [Export(typeof(IProcessor))]
     public class DecoderMDIO : IDecoder
     {
         public DecoderDescription Description
@@ -93,17 +93,20 @@ namespace LabNation.Decoders
             // 350ns give or take one sample (forced below to be at most 20ns).
             int readSampleOffset = System.Convert.ToInt32((minimumClockPeriod / samplePeriod) * 7 / 8);
 
-            // For some reason SmartScope is handing me 2048-sample arrays before handing me the real array.
-            // Work around by enforcing minimum length.
+            // SmartScope calls this function many times. Understanding that plenitude of calls is key to
+            // writing a successful decoder.
+            // For fast decoding and thumbnail work, it hands in 2048-sample arrays. It only hands in full
+            // data buffers when data collection stops (and you get the last one).
+            // Work around this by enforcing minimum length of 64 MDIO bit segments.
             if (64.0 * bitSampleLength > MDC.Length)
             {
-                decoderOutputList.Add(new DecoderOutputEvent(4 * MDC.Length / 10, 7 * MDC.Length / 10, DecoderOutputColor.Orange, "array too small"));
+                decoderOutputList.Add(new DecoderOutputEvent(1 * MDC.Length / 10, 9 * MDC.Length / 10, DecoderOutputColor.Orange, "Viewport fast decode not supported"));
                 return decoderOutputList.ToArray();
             }
 
             // If this inequality holds, then when a clock rising edge is detected on MDC the corresponding
             // samples from MDIO can be used as valid data (for master-originated bits).
-            // Empirically, samplePeriod == 10ns is common on the SmartScope.
+            // Empirically, samplePeriod == 10ns is common on the SmartScope (at 100Msps in Sys menu)
             double maximumSamplePeriod = 20.0 / 1000000000.0;
 
             if (samplePeriod > maximumSamplePeriod)
