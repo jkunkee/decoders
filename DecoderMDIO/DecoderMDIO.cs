@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel.Composition;
+using System.Linq;
 using LabNation.Interfaces;
 
 // There are two decent documents about decoder authoring:
 //http://wiki.lab-nation.com/index.php/Creating_your_own_Protocol_Decoder
 //https://github.com/labnation/decoders/blob/master/README.md
 /*
-copy /Y "D:\CrashPlan\Video Capture Device\decoders\MDIODecoder\bin\Debug\MDIODecoder.dll" C:\Users\Jon\Documents\LabNation\Plugins
+copy /Y "D:\CrashPlan\Video Capture Device\decoders\DecoderMDIO\bin\Debug\DecoderMDIO.dll" C:\Users\Jon\Documents\LabNation\Plugins
 */
 
 namespace LabNation.Decoders
 {
-    [Export(typeof(IProcessor))]
+    [Export(typeof(IDecoder))]
     public class DecoderMDIO : IDecoder
     {
         public DecoderDescription Description
